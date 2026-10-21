@@ -1,0 +1,4 @@
+# Never commit personal data (this repo is public)
+mood-backup-*.json
+mood-export-*.csv
+backups/

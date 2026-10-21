@@ -1,8 +1,8 @@
 # PRD: Personal Mood Tracker (PWA)
 
 > Written for: Kop (owner, translator, not a developer) and for an AI coding agent (Claude Code) that will build it.
-> Status: v1.1 spec, decisions locked through a design interview. Items marked **[Default]** were chosen by the assistant and can be changed.
-> Changelog: v1.1 added the Development Pipeline & Tools section, the Claude Project workflow, and related requirements and checks.
+> Status: v1.2 spec, decisions locked through a design interview. Items marked **[Default]** were chosen by the assistant and can be changed.
+> Changelog: v1.1 added the Development Pipeline & Tools section, the Claude Project workflow, and related requirements and checks. v1.2 changed the release flow: Claude Code now commits, pushes, and updates `docs/progress.md` itself; GitHub Desktop becomes the owner's tool for reviewing history.
 
 ## Overview
 
@@ -88,10 +88,10 @@ Only the owner (Kop), on one Android phone (Chrome). No accounts, no sharing, no
 ### I. Technical approach
 
 - REQ-37: Plain HTML, CSS, and JavaScript only. No frameworks, no bundlers, no build step, no Node dependencies required to run the app.
-- REQ-38: Suggested file layout: `index.html`, `style.css`, `app.js`, `i18n.js` (all UI text and mood words in EN/TH, kept as a simple readable data structure the owner can edit), `manifest.json`, `sw.js`, `icons/`, `.gitignore`, `README.md`, `CLAUDE.md` (short standing rules for Claude Code, see Development Pipeline), and `docs/prd-mood-tracker.md` (a copy of this PRD).
+- REQ-38: Suggested file layout: `index.html`, `style.css`, `app.js`, `i18n.js` (all UI text and mood words in EN/TH, kept as a simple readable data structure the owner can edit), `manifest.json`, `sw.js`, `icons/`, `.gitignore`, `README.md`, `CLAUDE.md` (short standing rules for Claude Code, see Development Pipeline), `docs/prd-mood-tracker.md` (a copy of this PRD), and `docs/progress.md` (requirement-by-requirement progress tracker, maintained by Claude Code).
 - REQ-39: Layout is mobile-first (phone portrait). It should remain usable on a desktop browser for development testing but is not optimized for it.
-- REQ-40: Local testing must use a local web server (service workers need `localhost` or HTTPS). Deployment is by committing in **GitHub Desktop** and pushing to GitHub; GitHub Pages serves from the main branch. No command-line git should be required of the owner (see Development Pipeline & Tools).
-- REQ-41: `README.md` must explain, in plain language for a non-developer: how to run the app locally, how to test on the phone, and the release steps (bump cache version, commit and push with GitHub Desktop, reload the installed app).
+- REQ-40: Local testing must use a local web server (service workers need `localhost` or HTTPS). Deployment is done by **Claude Code**, which commits and pushes to GitHub after local tests pass; GitHub Pages serves from the main branch. No command-line git is required of the owner, who can review every commit in **GitHub Desktop** (see Development Pipeline & Tools).
+- REQ-41: `README.md` must explain, in plain language for a non-developer: how to run the app locally, how to test on the phone, how releases happen (Claude Code commits and pushes, cache version bumped, reload the installed app), and how to review history or undo a bad commit in GitHub Desktop.
 
 ## Development Pipeline & Tools
 
@@ -101,8 +101,8 @@ Only the owner (Kop), on one Android phone (Chrome). No accounts, no sharing, no
 |---|---|
 | **Claude (Project)** | Planning and design partner. Holds this PRD, discusses feature changes, updates the PRD, and writes ready-to-paste prompts for Claude Code. Does not replace Claude Code for editing files. |
 | **VS Code** (Windows PC) | Editor and project folder. Used to read files, run a local preview, and review what Claude Code changed. |
-| **Claude Code** | Writes and edits the code inside the project folder, runs the local preview, and follows `CLAUDE.md` and this PRD. |
-| **GitHub Desktop** | Visual tool for committing and pushing, so no git commands are needed. Used to review changes before each commit. |
+| **Claude Code** | Writes and edits the code inside the project folder, runs the local preview, tests, commits and pushes to GitHub, updates `docs/progress.md`, and follows `CLAUDE.md` and this PRD. |
+| **GitHub Desktop** | Visual tool for the owner to browse history (History tab) and review what Claude Code committed. Also the fallback for committing, pushing, or reverting by hand. |
 | **GitHub + GitHub Pages** | Stores version history and hosts the app (public repo, free). |
 | **Android phone (Chrome)** | Real-device testing and the only place real data lives. |
 | Antigravity | Optional alternative editor/assistant. Not required. |
@@ -110,11 +110,11 @@ Only the owner (Kop), on one Android phone (Chrome). No accounts, no sharing, no
 ### Pipeline (one feature change)
 
 1. **Plan in the Claude Project.** Describe the change. Claude checks it against this PRD (requirements, Out of Scope, data compatibility), asks clarifying questions one at a time, then updates the affected PRD section(s) and the changelog.
-2. **Build in VS Code with Claude Code.** Paste the prompt prepared in step 1. Claude Code edits files in the project folder and starts the local preview. For riskier changes, work on a separate branch (create it in GitHub Desktop).
+2. **Build in VS Code with Claude Code.** Paste the prompt prepared in step 1. Claude Code edits files in the project folder and starts the local preview.
 3. **Test locally.** Open the local preview on the PC, and check that nothing was broken (see Definition of Done).
-4. **Review and commit in GitHub Desktop.** Read the list of changed files and the diff, confirm no data or backup files are included, write a clear commit message, then commit.
-5. **Release.** Bump the service worker cache version, commit, then push (Push origin). On a branch, merge into `main` first. GitHub Pages updates in 1-2 minutes.
-6. **Test on the phone.** Reload the installed app (once or twice, since the old cached version may show first) and confirm the change.
+4. **Commit by Claude Code.** After local tests pass, Claude Code checks `git status` (stopping if any data or backup file appears), bumps the service worker cache version, and commits with a plain-language message.
+5. **Release by Claude Code.** Claude Code pushes to `main` and updates `docs/progress.md` (the "AI status" columns only). GitHub Pages updates in 1-2 minutes. The owner can review the commit afterwards in GitHub Desktop (History tab).
+6. **Test on the phone (owner).** Reload the installed app (once or twice, since the old cached version may show first), confirm the change, and tick the "Kop verified" column in `docs/progress.md`. Only the owner may tick that column.
 7. **Sync the PRD.** If the PRD changed, update `docs/prd-mood-tracker.md` in the repo and replace the copy in the Claude Project knowledge so both match.
 
 ### Standing rules for Claude Code (to be placed in `CLAUDE.md`)
@@ -126,7 +126,9 @@ Only the owner (Kop), on one Android phone (Chrome). No accounts, no sharing, no
 - Bump the service worker cache version on every release.
 - Use relative paths only (GitHub Pages sub-path).
 - Keep UI text only in `i18n.js`, in both English and Thai.
-- After each task, summarize what changed in plain language and list the files touched, so the owner can review them in GitHub Desktop.
+- Git: run `git status` before every commit and stop if any `mood-backup-*.json`, `mood-export-*.csv`, or `backups/` content appears. Commit and push to `main` only after local tests pass. Never force-push, rewrite history, run `git reset --hard`, or delete branches. If push fails (for example a login problem), stop and tell the owner; never put credentials in any file.
+- Progress: after each stage, update `docs/progress.md`. Mark a requirement "Done" only if it was actually tested, and say how. Never tick the "Kop verified" column.
+- After each stage, report in plain language: what changed, the files touched, the status of each requirement covered, what the owner should test on the phone, and the commit that was pushed.
 
 ### Claude Project workflow
 
@@ -168,7 +170,8 @@ Verify on a real Android phone with Chrome, using the deployed GitHub Pages URL:
 - [ ] Settings shows persistent-storage status and the data-loss warning.
 - [ ] After pushing a new version with a bumped cache version, the installed app picks up the update after a reload or two.
 - [ ] The repository contains no entries or backup files, and `.gitignore` is in place.
-- [ ] The owner can run the app locally, commit, and push using only VS Code, Claude Code, and GitHub Desktop (no manual git commands), by following `README.md`.
+- [ ] Claude Code can commit and push to GitHub on its own, and the owner can see each commit and undo a bad one in GitHub Desktop (no manual git commands), by following `README.md`.
+- [ ] `docs/progress.md` lists every requirement with an "AI status" and a "Kop verified" column, and the two columns are kept separate.
 - [ ] `CLAUDE.md` exists in the repo root with the standing rules above, and `docs/prd-mood-tracker.md` matches the PRD in the Claude Project.
 
 ## Constraints
@@ -189,7 +192,8 @@ Verify on a real Android phone with Chrome, using the deployed GitHub Pages URL:
 5. **Repository name** (affects the final URL).
 6. **Future**: custom mood words, activity tags, statistics page, optional sync, in that rough order of likely value.
 7. **Keeping two copies of the PRD in sync** (repo copy and Claude Project copy) relies on the owner remembering step 7 of the pipeline. If this proves error-prone, consider treating the repo copy as the master and re-uploading it to the Project after every change.
-8. **Branching habit**: whether to always use branches or commit straight to `main` for small changes is left to the owner's comfort with GitHub Desktop.
+8. **Direct commits to `main`**: Claude Code commits straight to `main` after each stage. If a broken version is ever pushed, the owner can revert it in GitHub Desktop (History tab). Revisit this if it causes problems.
+9. **Auto-advance between stages**: Claude Code currently stops after each stage and waits for the owner to start the next one. This can be loosened later.
 
 ---
 

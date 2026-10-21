@@ -4,7 +4,7 @@
 A private, single-user mood tracking Progressive Web App for one Android phone (Chrome), hosted on GitHub Pages. The full spec is in `docs/prd-mood-tracker.md`. **Read it before making any change.** It is the source of truth.
 
 ## About the owner
-Kop is a translator, not a developer. Explain what you did in plain language, avoid unexplained jargon, and never assume command-line git knowledge. Kop reviews changes and commits with GitHub Desktop.
+Kop is a translator, not a developer. Explain what you did in plain language, avoid unexplained jargon, and never assume command-line git knowledge. Kop checks your work later: on the real phone, and by browsing commit history in GitHub Desktop.
 
 ## Hard rules
 - Plain HTML, CSS, and JavaScript only. No frameworks, no bundlers, no build step, no npm dependencies required to run the app, no CDNs or external fonts.
@@ -15,17 +15,35 @@ Kop is a translator, not a developer. Explain what you did in plain language, av
 - Use relative paths only (no leading `/`), because GitHub Pages serves the app under `/<repo-name>/`.
 - All UI text lives in `i18n.js`, in both English (default) and Thai. Mood entries store mood IDs, never display text.
 - If the stored data shape changes, keep old backups importable: increase `schemaVersion`, add a migration, and call this out clearly.
-- Bump the service worker cache version on every release.
+- Bump the service worker cache version whenever app files change.
 - Keep it simple. Prefer small, readable code with short comments over clever abstractions.
 
 ## How to work
-1. Read the PRD and this file first.
-2. For anything non-trivial, state a short plan and wait for Kop's OK before editing files.
-3. Work on one stage or feature at a time. Do not build ahead of what was asked.
-4. Run the app with a simple local static server to check your work (service workers need `localhost` or HTTPS). Tell Kop the address to open.
-5. After each task, report in plain language: what changed, which files were touched, and how Kop can check it (on the PC and on the phone).
-6. Do not run git commit or git push. Kop does this in GitHub Desktop after reviewing the changed files.
-7. If the PRD is unclear or conflicts with a request, ask Kop instead of guessing.
+1. Read the PRD, `docs/progress.md`, and this file first.
+2. Work on one stage at a time (the stage list is in the PRD and `docs/progress.md`). Do not build ahead of the stage you were asked to do.
+3. Start with a short plan in the chat, then go ahead without waiting for approval, as long as the plan stays inside the PRD. **Stop and ask Kop** only if: the PRD is unclear or conflicts with the request; the work would change the stored data shape; the work would add something listed under Out of Scope; or a command would delete files outside the project folder.
+4. Run the app with a simple local static server to check your work (service workers need `localhost` or HTTPS). Test what you built before committing, using fake sample data.
+5. When a stage is finished and tested, do the Git steps below, then update progress, then stop. Do not start the next stage until Kop asks.
+
+## Git: you commit and push (Kop reviews afterwards)
+- Run `git status` before every commit. **Stop and tell Kop** if any `mood-backup-*.json`, `mood-export-*.csv`, `backups/` content, or any file that looks like personal data appears.
+- Commit only after your local tests pass. Use a plain-language message that starts with the stage, e.g. `Stage 2: check-in flow with optional journal`.
+- Bump the service worker cache version before committing if any app file changed.
+- Push to `main` on `origin`. GitHub Pages then updates within 1-2 minutes.
+- Never force-push, rewrite history, run `git reset --hard`, or delete branches.
+- If push fails (for example a login or permission problem), stop and tell Kop exactly what happened. Never put passwords or tokens in any file, and never ask Kop to paste credentials into chat.
+
+## Progress tracking
+- Update `docs/progress.md` at the end of every stage, in the same commit as the work.
+- Fill only the **AI status** and **Notes** columns. Mark `Done (tested)` only if you actually tested it, and say how in Notes. Use `In progress` or `Blocked` honestly.
+- Never tick the **Kop verified** column. Only Kop does that, after testing on the real phone.
+
+## End-of-stage report (in plain language)
+- What changed, and which files were touched.
+- The status of every requirement the stage covered (Done (tested), Partly done, or Not done), with one line on how Kop can check each.
+- What Kop should test on the real Android phone.
+- The commit message and whether the push succeeded.
+- Anything you were unsure about or skipped.
 
 ## Definition of done for any change
 - Works offline after first load.

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Mood Tracker</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="theme-color" content="#ffffff">
+
+  <!-- Apply the saved theme and language before the first paint (no flash) -->
+  <script>
+    (function () {
+      var theme = "light", lang = "en";
+      try {
+        theme = localStorage.getItem("theme") === "dark" ? "dark" : "light";
+        lang = localStorage.getItem("language") === "th" ? "th" : "en";
+      } catch (e) {}
+      document.documentElement.setAttribute("data-theme", theme);
+      document.documentElement.lang = lang;
+      var meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.content = theme === "dark" ? "#14161a" : "#ffffff";
+    })();
+  </script>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main id="screens">
+    <section id="screen-checkin" class="screen">
+      <h1 data-i18n="checkinTitle"></h1>
+      <p data-i18n="checkinPlaceholder"></p>
+    </section>
+
+    <section id="screen-history" class="screen" hidden>
+      <h1 data-i18n="historyTitle"></h1>
+      <p data-i18n="historyPlaceholder"></p>
+    </section>
+
+    <section id="screen-settings" class="screen" hidden>
+      <h1 data-i18n="settingsTitle"></h1>
+
+      <div class="card">
+        <h2 data-i18n="language"></h2>
+        <div class="segmented" id="language-switch">
+          <button type="button" data-lang="en">English</button>
+          <button type="button" data-lang="th">ไทย</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 data-i18n="theme"></h2>
+        <div class="segmented" id="theme-switch">
+          <button type="button" data-theme-value="light" data-i18n="themeLight"></button>
+          <button type="button" data-theme-value="dark" data-i18n="themeDark"></button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 data-i18n="storageTitle"></h2>
+        <p id="storage-status"></p>
+        <p class="warning" data-i18n="dataWarning"></p>
+      </div>
+
+      <p class="small"><span data-i18n="version"></span>: <span id="app-version"></span></p>
+    </section>
+  </main>
+
+  <nav id="tabbar">
+    <button type="button" class="tab" data-tab="checkin"><span class="tab-icon" aria-hidden="true">✚</span><span data-i18n="tabCheckin"></span></button>
+    <button type="button" class="tab" data-tab="history"><span class="tab-icon" aria-hidden="true">☰</span><span data-i18n="tabHistory"></span></button>
+    <button type="button" class="tab" data-tab="settings"><span class="tab-icon" aria-hidden="true">⚙</span><span data-i18n="tabSettings"></span></button>
+  </nav>
+
+  <script src="i18n.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
